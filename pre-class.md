@@ -60,6 +60,8 @@ We will use a browser-based tool to draw database diagrams in class. Set it up n
 Before the session, consider: **Why do we need a database at all? Why not just use a giant Excel spreadsheet?**
 
 Write down your thoughts, then check the suggested answer below.
+- My Answer (27-Apr-2026): (1), repetitive data would required to be updated row by row, although one can use "Replace All". (2), when Excel grows very large, navigation becomes messy and laggy. (3), From 1, repetitive data results in redundant usage of memory storage, which is costly operationally.
+
 
 <details>
 <summary>Suggested answer</summary>
@@ -93,6 +95,12 @@ Find a physical receipt (grocery store, café, or online order) or imagine one. 
 
 *If attending live: bring your answers to class — we'll use them to kick off the E-Commerce activity.*
 *If self-studying: work through it yourself first, then check the answer key below.*
+
+- My Answer (27-Apr-2026):
+  i. Date & Time: Transactional
+  ii. Store Address: Master
+  iii. Item Name: Master
+  iv. Item Price: Master
 
 <details>
 <summary>Answer Key — The Receipt Challenge</summary>
