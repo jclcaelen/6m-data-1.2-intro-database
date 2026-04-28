@@ -284,6 +284,10 @@ Ref: class_teachers.teacher_id > teachers.id
 </details>
 
 
+**Comparison of suggested solution vs attempt**
+https://github.com/jclcaelen/6m-data-1.2-intro-database/blob/main/assets/junction_table.png
+https://github.com/jclcaelen/6m-data-1.2-intro-database/blob/main/assets/junction_table_myattempt.png
+
 
 ---
 
