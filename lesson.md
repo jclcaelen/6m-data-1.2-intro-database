@@ -59,6 +59,8 @@ To persist data, we need a Database. But not all data is created equal — you w
    NoSQL/Object Store for the image binary, or SQL for the file path.
    </details>
 
+**My Notes (28-Apr-2026): Not vector since we need not use the power of automation/AI/LLM? See the 3rd point below.
+
 2. **Payment Processing:**
    <details>
    <summary>Answer</summary>
@@ -101,6 +103,8 @@ The glue that holds this blueprint together is the **ID**.
 ### 🛠️ Activity 2.1: Code-Along — Car Insurance Schema (15 min)
 
 Open [dbdiagram.io](https://dbdiagram.io/d) and paste the following code. Read the comments as you go.
+
+**My Notes (28-Apr-2026): **DBML** (Database Markup Language)
 
 > **SQL Data Types Reference** — you'll use these when declaring columns in DBML:
 >
@@ -152,6 +156,21 @@ Ref: cars.customer_id > customers.id
 // 3. Link the accident to the car.
 ```
 
+- My Answer (28-Apr-2026):
+
+Table accidents {
+  id int [pk, increment]
+  date date
+  location varchar
+  description text
+  car_id int
+}
+
+Ref: accidents.car_id > cars.id
+
+**Notes (28-Apr-2026): I'm guessing ">" would often likely to point from FK to PK? Increment seems to do a sequence.
+**Follow up (after checking the below answers): Yes, datetime is better as it captures the time of the accident, better than just the day itself.
+
 <details>
 <summary>Click here to view solution</summary>
 
@@ -181,6 +200,44 @@ Each entity has the following attributes:
 
 - Write the DBML to create the ERD.
 - Submit your code in the Discord Peer-Review Channel.
+
+- My Attempt (28-Apr-2026):
+
+Table student {
+  id int [pk, increment]
+  name varchar
+  address varchar
+  phone int
+  email varchar
+  class_id int
+}
+
+Table teacher {
+  id int [pk, increment]
+  name varchar
+  address varchar
+  phone int
+  email varchar
+}
+
+// Post-consideration of provided solution of "Junction table"
+  // seems to make class table as standalone with PK.
+// Will update with remarks after clarifying with instructors.
+Table class {
+  id int
+  name varchar
+  teacher_id int
+}
+
+
+// Ref seems to only work after declaring the tables above.
+// Each student belongs to a single class. 
+Ref: student.class_id > class.id
+// Each teacher may teach more than one class, and 
+// each class may have more than one teacher.
+Ref: class.teacher_id > teacher.id
+// So class does not have a PK, allowing duplication.
+
 
 <details>
 <summary>Click here to view a sample solution</summary>
@@ -225,6 +282,8 @@ Ref: class_teachers.teacher_id > teachers.id
 - The original spec has `class_id` as an attribute on Teacher — this works if each teacher only ever belongs to one class, but the junction table approach is more flexible and correct given the many-to-many requirement.
 
 </details>
+
+
 
 ---
 
