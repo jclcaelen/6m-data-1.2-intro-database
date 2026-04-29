@@ -61,6 +61,8 @@ To persist data, we need a Database. But not all data is created equal — you w
 
 **My Notes (28-Apr-2026): Not vector since we need not use the power of automation/AI/LLM? See the 3rd point below.
 
+**Class Notes (29-Apr-2026): Storing in a bucket, as if store in SQL, it will be laggy and expensive.
+
 2. **Payment Processing:**
    <details>
    <summary>Answer</summary>
@@ -146,6 +148,8 @@ Table cars {
 // The '>' symbol translates to "One-to-Many".
 // Read as: "One Customer can have Many Cars"
 Ref: cars.customer_id > customers.id
+
+**Lecture Notes (29-Apr-2026): Many > One.
 
 
 // --- 🟢 CHALLENGE ---
@@ -238,6 +242,12 @@ Ref: student.class_id > class.id
 Ref: class.teacher_id > teacher.id
 // So class does not have a PK, allowing duplication.
 
+Questions:
+1. In junction tables, usually for many to many relationships, the entries are both PK on its own, and FKs back to the entity --> Ans: Composite Key.
+2. With this relationship table, we can do the reference, where we represent a many to one reference.
+
+Many to many, need to do the reference multiple times.
+
 
 <details>
 <summary>Click here to view a sample solution</summary>
@@ -295,6 +305,13 @@ https://github.com/jclcaelen/6m-data-1.2-intro-database/blob/main/assets/junctio
 
 ### 🎯 Learning Objectives
 Evaluate a raw, un-normalized dataset and decompose it into a 3rd Normal Form (3NF) schema to reduce data redundancy.
+
+
+Notes (29-Apr-2026): 
+1. To prevent anomaly like Insert, Delete and Update Anomaly. Also on minimising redundancy.
+2. For 3NF, each (non-key) column must be represented by the primary key column. Else, need to split the table. Therefore, each fact is store in exactly one place, where one can update the data once, and it applies to the other dependencies.
+3. Composite Key vs Surrogate Key:
+   a. Composite Key can resolve problems like insufficient rows? 
 
 ### Concept Overview
 
@@ -404,11 +421,98 @@ Work through the normalization steps with your group:
 
 **Step 1 — Apply 1NF:** Add a LineNumber to create a unique two-part identifier (OrderID + LineNumber) for each row.
 
+| OrderID | Line Number | ItemID | ItemName | ItemPrice | CustomerID | CustomerName | OrderDate |
+|---------|--------|--------|----------|-----------|-----------|-------------|-----------|
+| 100 | 1 | 10 | iPhone | 1000 | 1 | John | 2021-01-01 |
+| 100 | 2 | 20 | iPad | 500 | 1 | John | 2021-01-01 |
+| 200 | 1 | 30 | Macbook | 2000 | 1 | John | 2021-01-02 |
+| 300 | 1 | 10 | iPhone | 1000 | 2 | Mary | 2021-01-03 |
+| 300 | 2 | 30 | Macbook | 2000 | 2 | Mary | 2021-01-03 |
+
+
 **Step 2 — Apply 2NF:** Customer info (CustomerID, CustomerName, OrderDate) depends only on OrderID, not on LineNumber. Split into an **Orders Table** and an **Order Line Items Table**.
+
+| OrderID | Line Number | ItemID | ItemName | ItemPrice |
+|---------|--------|--------|----------|-----------|
+| 100 | 1 | 10 | iPhone | 1000 |
+| 100 | 2 | 20 | iPad | 500 |
+| 200 | 1 | 30 | Macbook | 2000 |
+| 300 | 1 | 10 | iPhone | 1000 |
+| 300 | 2 | 30 | Macbook | 2000 |
+
+
+| OrderID | CustomerID | CustomerName | OrderDate |
+|---------|--------|--------|----------|
+| 100 | 1 | John | 2021-01-01 |
+| 200 | 1 | John | 2021-01-02 |
+| 300 | 2 | Mary | 2021-01-03 |
+
+
 
 **Step 3 — Apply 3NF:** ItemName and ItemPrice depend on ItemID, not on the specific order. Create a separate **Products Table**.
 
+| OrderID | Line Number | ItemID | CustomerID | Order Date |
+|---------|--------|--------|----------|----------|
+| 100 | 1 | 10 | 1 | 2021-01-01 |
+| 100 | 2 | 20 | 1 | 2021-01-01 |
+| 200 | 1 | 30 | 1 | 2021-01-02 |
+| 300 | 1 | 10 | 2 | 2021-01-03 |
+| 300 | 2 | 30 | 2 | 2021-01-03 |
+
+
+ItemID | ItemName | ItemPrice |
+|---------|--------|--------|
+| 10 | iPhone | 1000 |
+| 20 | iPad | 500 |
+| 30 | Macbook | 2000 |
+
+
+| CustomerID | CustomerName |
+|---------|--------|
+| 1 | John |
+| 2 | Mary |
+
+
 **Final Result — 4 clean tables:** Customers, Products, Orders, Order Line Items.
+
+** My Attempt post consideration of the below suggested solution (29-Apr-2026):
+
+// Order
+Table order {
+  id int [pk, increment]
+  // line_number int - not needed because to atomise the order
+  // item_id int - goes to order_line as each line represents a "unique" item in the main order
+  customer_id int     // FK
+  order_date date
+}
+
+// Item
+Table item {
+  id int [pk, increment]
+  name varchar
+  price float
+}
+
+// Customer
+Table customer {
+  id int [pk, increment]
+  name varchar
+}
+
+// Order Line
+// Considered the solution provided
+Table order_line {
+  order_id int    // FK: need to reference back to the main order id
+  line_id int     // Its own unique id  
+  item_id int     // FK: as each line item represents different product in the same main order, we split this field from the order table
+}
+
+
+// Reference
+Ref: order.customer_id > customer.id
+Ref: order_line.order_id > order.id
+Ref: order_line.item_id > item.id
+
 
 <details>
 <summary>Click here to view the final DBML for all 4 tables</summary>
@@ -457,6 +561,70 @@ Ref: order_line_items.product_id > products.id
 | R2 | Bob | 555-5678 | Inception | Sci-Fi | 2026-01-02 | 2026-01-04 |
 
 **Task:** Normalize this to 3NF. Create the necessary tables and identify the Primary Keys and Foreign Keys. Write it in DBML and share in Discord.
+
+** My Attempt, referencing to the practice earlier (29-Apr-2026):
+
+** Since each rental can have multiple titles, we split this out, but each rental is to one customer.
+| RentalID | CustomerID | RentalDate | ReturnDate |
+|----------|-------------|-------------|-------------|
+| R1 | C1 | 2026-01-01 | 2026-01-03 |
+| R2 | C2 | 2026-01-02 | 2026-01-04 |
+
+| CustomerID | CustomerName | CustomerPhone | 
+|----------|-------------|-------------|
+| C1 | Alice | 555-1234 |
+| C2 | Bob | 555-5678 |
+
+| MovieID | MovieTitle | MovieGenre |
+|----------|-------------|-------------|
+| M1 | Inception | Sci-Fi |
+| M2 | Interstellar | Sci-Fi |
+
+** I am guessing, because for one rental of multiple titles, they would have the same rental and return dates, therefore we can split them into two.
+
+| RentalID | RentalLine | MovieID |
+|----------|-------------|-------------|
+| R1 | L1 | M1 |
+| R1 | L2 | M2 |
+| R2 | L1 | M1 |
+
+
+** My Attempt (29-Apr-2026):
+
+// Rental
+Table rental {
+  id int [pk, increment]
+  customer_id int
+  start date
+  end date
+}
+
+// Rental+
+Table rentalplus {
+  rental_id int     // FK: reference back to main rental
+  id int            // the indexing of multiple rental of titles
+  movie_id int      // FK: reference to the title rented
+}
+
+// Customer
+Table customer {
+  id int [pk, increment]
+  name varchar
+  phone varchar
+}
+
+// Movie
+Table movie {
+  id int [pk, increment]
+  title varchar
+  genre varchar
+}
+
+
+// References
+Ref: rental.customer_id > customer.id
+Ref: rentalplus.rental_id > rental.id
+Ref: rentalplus.movie_id > movie.id
 
 <details>
 <summary>Click here to view a sample solution</summary>
