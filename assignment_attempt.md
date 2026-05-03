@@ -1,3 +1,4 @@
+```dbml
 // Users
 Table user {
   id int [pk, increment]
@@ -87,3 +88,4 @@ Table order_details {
 // therefore a surrogate id as PK
 
 // added constraints above
+```
